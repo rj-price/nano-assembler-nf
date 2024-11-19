@@ -4,7 +4,7 @@ nextflow.enable.dsl = 2
 
 // Input Parameters
 params.reads_dir    = "${launchDir}/data"
-params.outdir       = "${launchDir}/results"
+params.outdir       = "${launchDir}/output"
 params.prefix       = "assembly"
 params.genome_size  = null
 
@@ -49,7 +49,8 @@ BUSCO lineage       : ${params.lineage}
 
 // Import modules
 include { PORECHOP } from './modules/porechop'
-include { NANOPLOT } from './modules/nanoplot'
+include { NANOPLOT as NANOPLOT_TRIMMED } from './modules/nanoplot'
+include { NANOPLOT as NANOPLOT_FILTERED } from './modules/nanoplot'
 include { FILTLONG } from './modules/filtlong'
 include { NECAT } from './modules/necat'
 include { RACON } from './modules/racon'
@@ -67,11 +68,14 @@ workflow {
     // Porechop
     PORECHOP(reads_ch)
 
-    // NanoPlot
-    NANOPLOT(PORECHOP.out.porechopped)
+    // NanoPlot trimmed reads
+    NANOPLOT_TRIMMED(PORECHOP.out.porechopped, 'trimmed')
 
     // Filtlong
     FILTLONG(PORECHOP.out.porechopped)
+
+    // NanoPlot filtered reads
+    NANOPLOT_FILTERED(FILTLONG.out.filtered, 'filtered')
 
     // NECAT
     NECAT(FILTLONG.out.filtered, params.genome_size)
@@ -90,7 +94,8 @@ workflow {
 
     // Collect all QC reports
     multiqc_files = Channel.empty()
-    multiqc_files = multiqc_files.mix(NANOPLOT.out.collect())
+    multiqc_files = multiqc_files.mix(NANOPLOT_TRIMMED.out.collect())
+    multiqc_files = multiqc_files.mix(NANOPLOT_FILTERED.out.collect())
     multiqc_files = multiqc_files.mix(BUSCO.out.collect())
 
     // MultiQC
