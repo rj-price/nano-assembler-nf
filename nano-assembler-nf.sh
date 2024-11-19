@@ -9,8 +9,7 @@ ReadsDir=$1
 GenomeSize=$2
 OutDir=$3
 
-export MYCONDAPATH=/mnt/shared/scratch/jnprice/apps/conda
-source ${MYCONDAPATH}/bin/activate nextflow
+source activate nextflow
 
 nextflow run main.nf -c ~/cropdiv.config \
     --reads_dir $ReadsDir \
