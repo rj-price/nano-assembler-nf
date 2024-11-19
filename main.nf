@@ -29,7 +29,7 @@ if (!params.reads_dir || !params.outdir || !params.genome_size || !params.prefix
 
 log.info """\
 
-       O N T   A S S E M B L Y     
+     N A N O   A S S E M B L E R     
 =====================================
            INPUT PARAMETERS
 Data Folder         : ${params.reads_dir}
