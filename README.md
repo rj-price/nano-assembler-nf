@@ -3,7 +3,7 @@ A Nextflow pipeline to assemble Oxford Nanopore long WGS reads, and perform QC a
 
 
 # To Do:
-- Add contamination & organelle check
+- Add organelle check (mito blast)
 - Add Flye (and longstitch?)
 - Add coverage histogram(s)
 - Add dot plot(s) to ref
@@ -23,3 +23,4 @@ sbatch nano-assembler-nf.sh ~/scratch/private/yeasties/ONT_assemblies/barcode05/
 ## Done:
 - Add nanoplot (pre & post filter)
 - Add kmer analysis (pre & post assembly)
+- Add contamination check (kraken2)
