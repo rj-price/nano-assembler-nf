@@ -52,11 +52,11 @@ include { PORECHOP } from './modules/porechop'
 include { NANOPLOT as NANOPLOT_TRIMMED } from './modules/nanoplot'
 include { NANOPLOT as NANOPLOT_FILTERED } from './modules/nanoplot'
 include { FILTLONG } from './modules/filtlong'
-include { KMC_READS } from './modules/kmc'
+include { JELLYFISH } from './modules/jellyfish'
 include { NECAT } from './modules/necat'
 include { RACON } from './modules/racon'
 include { MEDAKA } from './modules/medaka'
-include { KMC_COMPARE } from './modules/kmc'
+include { MERQURY } from './modules/merqury'
 include { BUSCO } from './modules/busco'
 include { GFASTATS } from './modules/gfastats'
 include { MULTIQC } from './modules/multiqc'
@@ -79,8 +79,8 @@ workflow {
     // NanoPlot filtered reads
     NANOPLOT_FILTERED(FILTLONG.out.filtered, 'filtered')
     
-    // KMC analysis on filtered reads
-    KMC_READS(FILTLONG.out.filtered)
+    // Jellyfish and GenomeScope2
+    JELLYFISH(FILTLONG.out.filtered)
 
     // NECAT
     NECAT(FILTLONG.out.filtered, params.genome_size)
@@ -90,9 +90,9 @@ workflow {
 
     // Medaka
     MEDAKA(FILTLONG.out.filtered, RACON.out.polished)
-    
-    // KMC comparison of filtered reads against final assembly
-    KMC_COMPARE(KMC_READS.out.kmc_db, MEDAKA.out.consensus)
+
+    // Merqury
+    MERQURY(FILTLONG.out.filtered, MEDAKA.out.consensus)
 
     // BUSCO
     BUSCO(MEDAKA.out.consensus)
@@ -102,11 +102,13 @@ workflow {
 
     // Collect all QC reports
     multiqc_files = Channel.empty()
-    multiqc_files = multiqc_files.mix(NANOPLOT_TRIMMED.out.collect())
-    multiqc_files = multiqc_files.mix(NANOPLOT_FILTERED.out.collect())
-    multiqc_files = multiqc_files.mix(BUSCO.out.collect())
-    multiqc_files = multiqc_files.mix(KMC_READS.out.stats.collect())
-    multiqc_files = multiqc_files.mix(KMC_COMPARE.out.stats.collect())
+    multiqc_files = multiqc_files.mix(
+        NANOPLOT_TRIMMED.out.flatten(),
+        NANOPLOT_FILTERED.out.flatten(),
+        BUSCO.out.summary.flatten(),
+        MERQURY.out.completeness.flatten(),
+        MERQURY.out.qv.flatten()
+    )
 
     // MultiQC
     MULTIQC(multiqc_files.collect())

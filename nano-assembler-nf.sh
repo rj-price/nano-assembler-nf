@@ -14,4 +14,5 @@ source activate nextflow
 nextflow run main.nf -c ~/cropdiv.config \
     --reads_dir $ReadsDir \
     --genome_size $GenomeSize \
-    --outdir $OutDir
+    --outdir $OutDir \
+    -resume

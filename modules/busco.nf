@@ -10,6 +10,7 @@ process BUSCO {
 
     output:
     path "BUSCO_${params.prefix}"
+    path "BUSCO_${params.prefix}/short_summary.*${params.prefix}.txt", emit: summary
 
     script:
     """
