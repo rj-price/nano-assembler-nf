@@ -24,6 +24,9 @@ params.lineage      = "fungi_odb10"
 // Kraken2 Parameters
 params.kraken2_db   = "/mnt/shared/scratch/jnprice/apps/k2_pluspf_16gb_20240112"
 
+// BLAST Parameters
+params.mito_db      = "/mnt/shared/home/jnprice/organelle_blast_db"
+
 // Input validation
 if (!params.reads_dir || !params.outdir || !params.genome_size || !params.prefix ) {
     error "Missing required parameters. Please provide --reads_dir, --genome_size, --prefix, and --outdir."
@@ -63,6 +66,7 @@ include { MERQURY } from './modules/merqury'
 include { BUSCO } from './modules/busco'
 include { GFASTATS } from './modules/gfastats'
 include { KRAKEN2 } from './modules/kraken2'
+include { MITO_CHECK } from './modules/mito_check'
 include { MULTIQC } from './modules/multiqc'
 
 // Main workflow
@@ -107,12 +111,16 @@ workflow {
     // Kraken2 for contamination check
     KRAKEN2(MEDAKA.out.consensus, params.kraken2_db)
 
+    // Identify mitochondrial contigs
+    MITO_CHECK(MEDAKA.out.consensus, params.mito_db)
+
     // Collect all QC reports
     multiqc_files = Channel.empty()
     multiqc_files = multiqc_files.mix(
         NANOPLOT_TRIMMED.out.flatten(),
         NANOPLOT_FILTERED.out.flatten(),
         BUSCO.out.summary.flatten(),
+        GFASTATS.out.stats.flatten(),
         MERQURY.out.completeness.flatten(),
         MERQURY.out.qv.flatten(),
         KRAKEN2.out.report.flatten()
