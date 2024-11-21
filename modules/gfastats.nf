@@ -10,7 +10,7 @@ process GFASTATS {
     val genome_size
 
     output:
-    path "${params.prefix}_genome_stats.tsv"
+    path "${params.prefix}_genome_stats.tsv", emit: stats
     path "${params.prefix}_contig_stats.tsv"
 
     script:
