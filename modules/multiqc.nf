@@ -6,7 +6,7 @@ process MULTIQC {
     queue = 'short'
 
     input:
-    path '*'
+    path('*')
 
     output:
     path 'multiqc_report.html'
