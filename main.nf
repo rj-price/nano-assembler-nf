@@ -21,6 +21,9 @@ params.model        = "r1041_e82_400bps_sup_g615"
 // BUSCO Parameters
 params.lineage      = "fungi_odb10"
 
+// Kraken2 Parameters
+params.kraken2_db   = "/mnt/shared/scratch/jnprice/apps/k2_pluspf_16gb_20240112"
+
 // Input validation
 if (!params.reads_dir || !params.outdir || !params.genome_size || !params.prefix ) {
     error "Missing required parameters. Please provide --reads_dir, --genome_size, --prefix, and --outdir."
@@ -59,6 +62,7 @@ include { MEDAKA } from './modules/medaka'
 include { MERQURY } from './modules/merqury'
 include { BUSCO } from './modules/busco'
 include { GFASTATS } from './modules/gfastats'
+include { KRAKEN2 } from './modules/kraken2'
 include { MULTIQC } from './modules/multiqc'
 
 // Main workflow
@@ -100,6 +104,9 @@ workflow {
     // GFAStats
     GFASTATS(MEDAKA.out.consensus, params.genome_size)
 
+    // Kraken2 for contamination check
+    KRAKEN2(MEDAKA.out.consensus, params.kraken2_db)
+
     // Collect all QC reports
     multiqc_files = Channel.empty()
     multiqc_files = multiqc_files.mix(
@@ -107,7 +114,8 @@ workflow {
         NANOPLOT_FILTERED.out.flatten(),
         BUSCO.out.summary.flatten(),
         MERQURY.out.completeness.flatten(),
-        MERQURY.out.qv.flatten()
+        MERQURY.out.qv.flatten(),
+        KRAKEN2.out.report.flatten()
     )
 
     // MultiQC
