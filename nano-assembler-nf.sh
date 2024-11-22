@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #SBATCH -J nf-ONT
-#SBATCH --partition=long
+#SBATCH --partition=medium
 #SBATCH --mem=8G
 #SBATCH --cpus-per-task=2
 
