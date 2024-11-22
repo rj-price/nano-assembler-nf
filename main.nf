@@ -27,6 +27,9 @@ params.kraken2_db   = "/mnt/shared/scratch/jnprice/apps/k2_pluspf_16gb_20240112"
 // BLAST Parameters
 params.mito_db      = "/mnt/shared/home/jnprice/organelle_blast_db"
 
+// Reference Genome
+params.ref_genome   = "${launchDir}/data/ref.fasta"
+
 // Input validation
 if (!params.reads_dir || !params.outdir || !params.genome_size || !params.prefix ) {
     error "Missing required parameters. Please provide --reads_dir, --genome_size, --prefix, and --outdir."
@@ -67,6 +70,7 @@ include { BUSCO } from './modules/busco'
 include { GFASTATS } from './modules/gfastats'
 include { KRAKEN2 } from './modules/kraken2'
 include { MITO_CHECK } from './modules/mito_check'
+include { DOTPLOT } from './modules/last'
 include { MULTIQC } from './modules/multiqc'
 
 // Main workflow
@@ -113,6 +117,9 @@ workflow {
 
     // Identify mitochondrial contigs
     MITO_CHECK(MEDAKA.out.consensus, params.mito_db)
+
+    // Dotplot
+    DOTPLOT(MEDAKA.out.consensus, params.ref_genome)
 
     // Collect all QC reports
     multiqc_files = Channel.empty()
