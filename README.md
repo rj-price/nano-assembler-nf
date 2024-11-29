@@ -3,12 +3,12 @@ A Nextflow pipeline to assemble Oxford Nanopore long WGS reads, and perform QC a
 
 
 # To Do:
+- Add filter & rename contigs (should come immediately after medaka)
 - Add coverage histogram(s)
 - Add SNP & sv vs ref
-- Add filter & rename contigs
 - Add repeats analysis
 - Add Flye (and longstitch)?
-- Add help message in [main.nf](http://main.nf) and documentation of usage in repo
+- Add help message in `main.nf` and documentation of usage in repo
 - Add setup script (check & install conda/nextflow on hpc), config file, conditionals to submission script (needed? write simple bash pipeline to check)
 - Add samplesheet integration to process multiple samples
 
