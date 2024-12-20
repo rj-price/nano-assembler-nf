@@ -1,9 +1,10 @@
 # nano-assembler-nf
 A Nextflow pipeline to assemble Oxford Nanopore long WGS reads, and perform QC and variant calling.
 
+**\#\#\# WORK IN PROGRESS \#\#\#**
 
-# To Do:
-- Add filter & rename contigs (should come immediately after medaka)
+## To Do:
+- Add sort & rename contigs (should come immediately after medaka)
 - Add coverage histogram(s)
 - Add SNP & sv vs ref
 - Add repeats analysis
@@ -13,9 +14,10 @@ A Nextflow pipeline to assemble Oxford Nanopore long WGS reads, and perform QC a
 - Add samplesheet integration to process multiple samples
 
 ## Test:
+- Add Tapestry (https://github.com/johnomics/tapestry)
 
 ```bash
-sbatch nano-assembler-nf.sh ~/scratch/private/yeasties/ONT_assemblies/barcode05/barcode05.fastq.gz 10000000 ./output
+sbatch nano-assembler-nf.sh /mnt/shared/projects/niab/jnprice/UoK/porechop/791_SN152.fastq.gz 15000000 ./output
 ```
 
 ## Done:

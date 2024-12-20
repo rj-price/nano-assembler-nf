@@ -22,10 +22,10 @@ params.model        = "r1041_e82_400bps_sup_g615"
 params.lineage      = "fungi_odb10"
 
 // Kraken2 Parameters
-params.kraken2_db   = "/mnt/shared/scratch/jnprice/apps/k2_pluspf_16gb_20240112"
+params.kraken2_db   = "/mnt/apps/users/jnprice/databases/k2_pluspf_16gb_20240112"
 
 // BLAST Parameters
-params.mito_db      = "/mnt/shared/home/jnprice/organelle_blast_db"
+params.mito_db      = "/mnt/apps/users/jnprice/databases/organelle_blast_db"
 
 // Reference Genome
 params.ref_genome   = "${launchDir}/data/ref.fasta"
@@ -66,6 +66,7 @@ include { NECAT } from './modules/necat'
 include { RACON } from './modules/racon'
 include { MEDAKA } from './modules/medaka'
 include { MERQURY } from './modules/merqury'
+include { TAPESTRY } from './modules/tapestry'
 include { BUSCO } from './modules/busco'
 include { GFASTATS } from './modules/gfastats'
 include { KRAKEN2 } from './modules/kraken2'
@@ -105,6 +106,9 @@ workflow {
 
     // Merqury
     MERQURY(FILTLONG.out.filtered, MEDAKA.out.consensus)
+
+    // Tapestry
+    TAPESTRY(FILTLONG.out.filtered, MEDAKA.out.consensus)
 
     // BUSCO
     BUSCO(MEDAKA.out.consensus)
