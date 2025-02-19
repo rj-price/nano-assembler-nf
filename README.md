@@ -14,7 +14,6 @@ A Nextflow pipeline to assemble Oxford Nanopore long WGS reads, and perform QC a
 - Add samplesheet integration to process multiple samples
 
 ## Test:
-- Add Tapestry (https://github.com/johnomics/tapestry)
 
 ```bash
 sbatch nano-assembler-nf.sh /mnt/shared/projects/niab/jnprice/UoK/porechop/791_SN152.fastq.gz 15000000 ./output
@@ -26,3 +25,4 @@ sbatch nano-assembler-nf.sh /mnt/shared/projects/niab/jnprice/UoK/porechop/791_S
 - Add contamination check (kraken2)
 - Add organelle check (mito blast)
 - Add dotplot against ref (last)
+- Add Tapestry (https://github.com/johnomics/tapestry)
