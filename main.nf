@@ -8,9 +8,12 @@ if (!params.input || !params.outdir || !params.genome_size || !params.prefix ) {
 }
 
 
+// Startup Log Information
 log.info """\
 
      N A N O   A S S E M B L E R     
+=====================================
+${workflow.manifest.name} v${workflow.manifest.version}
 =====================================
            INPUT PARAMETERS
 Samplesheet         : ${params.input}
@@ -25,25 +28,24 @@ Assembly Coverage   : ${params.coverage}
 Basecalling Model   : ${params.model}
 BUSCO lineage       : ${params.lineage}
 
+=================================
+        RUN INFORMATION
+Executor            : ${workflow.containerEngine ?: 'local'}
+Profile             : ${workflow.profile}
+Nextflow version    : ${nextflow.version}
+Launch dir          : ${workflow.launchDir}
+=================================
 """.stripIndent()
 
 
+// Import subworkflows
+include { READ_QC } from './subworkflows/read_qc'
+include { ASSEMBLY } from './subworkflows/assembly'
+include { ASSEMBLY_QC } from './subworkflows/assembly_qc'
+
 // Import modules
-include { PORECHOP } from './modules/porechop'
-include { NANOPLOT as NANOPLOT_TRIMMED } from './modules/nanoplot'
-include { NANOPLOT as NANOPLOT_FILTERED } from './modules/nanoplot'
-include { FILTLONG } from './modules/filtlong'
-include { JELLYFISH } from './modules/jellyfish'
-include { NECAT } from './modules/necat'
-include { RACON } from './modules/racon'
-include { MEDAKA } from './modules/medaka'
-include { MERQURY } from './modules/merqury'
-include { TAPESTRY } from './modules/tapestry'
-include { BUSCO } from './modules/busco'
-include { GFASTATS } from './modules/gfastats'
-include { KRAKEN2 } from './modules/kraken2'
-include { MITO_CHECK } from './modules/mito_check'
 include { MULTIQC } from './modules/multiqc'
+include { CUSTOM_DUMP_SOFTWARE_VERSIONS } from './modules/dump_software_versions'
 
 // Function to parse samplesheet
 def parseSamplesheet(csvFile) {
@@ -64,58 +66,41 @@ workflow {
     // Create input channel from samplesheet
     reads_ch = parseSamplesheet(params.input)
 
-    // Porechop
-    PORECHOP(reads_ch)
+    // Version tracking channel
+    ch_versions = Channel.empty()
 
-    // NanoPlot trimmed reads
-    NANOPLOT_TRIMMED(PORECHOP.out.porechopped, 'trimmed')
+    // Subworkflow: Read QC
+    READ_QC(reads_ch)
+    ch_versions = ch_versions.mix(READ_QC.out.versions)
 
-    // Filtlong
-    FILTLONG(PORECHOP.out.porechopped)
+    // Subworkflow: Assembly and Polishing
+    ASSEMBLY(READ_QC.out.filtered_reads, params.genome_size)
+    ch_versions = ch_versions.mix(ASSEMBLY.out.versions)
 
-    // NanoPlot filtered reads
-    NANOPLOT_FILTERED(FILTLONG.out.filtered, 'filtered')
-    
-    // Jellyfish and GenomeScope2
-    JELLYFISH(FILTLONG.out.filtered)
+    // Subworkflow: Post-Assembly QC
+    ASSEMBLY_QC(
+        READ_QC.out.filtered_reads,
+        ASSEMBLY.out.consensus,
+        params.genome_size,
+        params.kraken2_db,
+        params.mito_db
+    )
+    ch_versions = ch_versions.mix(ASSEMBLY_QC.out.versions)
 
-    // NECAT
-    NECAT(FILTLONG.out.filtered, params.genome_size)
+    // Software versions aggregation
+    CUSTOM_DUMP_SOFTWARE_VERSIONS(ch_versions.unique().collectFile(name: 'collated_versions.yml'))
 
-    // Racon
-    RACON(FILTLONG.out.filtered, NECAT.out.assembly)
-
-    // Medaka
-    MEDAKA(FILTLONG.out.filtered, RACON.out.polished)
-
-    // Merqury
-    MERQURY(FILTLONG.out.filtered, MEDAKA.out.consensus)
-
-    // Tapestry
-    TAPESTRY(FILTLONG.out.filtered, MEDAKA.out.consensus)
-
-    // BUSCO
-    BUSCO(MEDAKA.out.consensus)
-
-    // GFAStats
-    GFASTATS(MEDAKA.out.consensus, params.genome_size)
-
-    // Kraken2 for contamination check
-    KRAKEN2(MEDAKA.out.consensus, params.kraken2_db)
-
-    // Identify mitochondrial contigs
-    MITO_CHECK(MEDAKA.out.consensus, params.mito_db)
-
-    // Collect all QC reports
+    // Collect all QC reports for MultiQC
     multiqc_files = Channel.empty()
     multiqc_files = multiqc_files.mix(
-        NANOPLOT_TRIMMED.out.flatten(),
-        NANOPLOT_FILTERED.out.flatten(),
-        BUSCO.out.summary.flatten(),
-        GFASTATS.out.stats.flatten(),
-        MERQURY.out.completeness.flatten(),
-        MERQURY.out.qv.flatten(),
-        KRAKEN2.out.report.flatten()
+        READ_QC.out.nanoplot_trimmed,
+        READ_QC.out.nanoplot_filtered,
+        ASSEMBLY_QC.out.busco_summary,
+        ASSEMBLY_QC.out.gfastats_stats,
+        ASSEMBLY_QC.out.merqury_completeness,
+        ASSEMBLY_QC.out.merqury_qv,
+        ASSEMBLY_QC.out.kraken2_report,
+        CUSTOM_DUMP_SOFTWARE_VERSIONS.out.mqc_yaml
     )
 
     // MultiQC

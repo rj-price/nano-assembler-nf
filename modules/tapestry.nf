@@ -1,14 +1,15 @@
 process TAPESTRY {
     container 'nanozoo/tapestry:1.0.0--80fd6ac'
-    publishDir "${params.outdir}/${params.prefix}/tapestry", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}/qc/tapestry", mode: 'copy'
     
     input:
     tuple val(sample_id), path(reads)
     tuple val(sample_id), path(assembly)
 
     output:
-    path "${params.prefix}/${params.prefix}.tapestry_report.html"
-    path "${params.prefix}/contig_details.tsv"
+    path "${sample_id}/${sample_id}.tapestry_report.html"
+    path "${sample_id}/contig_details.tsv"
+    path "versions.yml", emit: versions
 
     script:
     """
@@ -17,7 +18,12 @@ process TAPESTRY {
         --reads ${reads} \
         --telomere TTAGGG \
         --length 2000 \
-        --output ${params.prefix} \
+        --output ${sample_id} \
         --cores ${task.cpus}
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        tapestry: 1.0.0
+    END_VERSIONS
     """
 }
