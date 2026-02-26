@@ -1,9 +1,6 @@
 process MITO_CHECK {
     container 'community.wave.seqera.io/library/blast_seqtk:9cca2195d54cc9d0'
     publishDir "${params.outdir}/${params.prefix}/mito_check", mode: 'copy'
-    cpus = 2
-    memory = { 4.GB * task.attempt }
-    queue = 'short'
 
     input:
     tuple val(sample_id), path(assembly)

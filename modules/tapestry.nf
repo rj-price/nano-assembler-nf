@@ -1,9 +1,6 @@
 process TAPESTRY {
     container 'nanozoo/tapestry:1.0.0--80fd6ac'
     publishDir "${params.outdir}/${params.prefix}/tapestry", mode: 'copy'
-    cpus = 4
-    memory = { 8.GB * task.attempt }
-    queue = 'medium'
     
     input:
     tuple val(sample_id), path(reads)

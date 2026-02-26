@@ -2,34 +2,6 @@
 
 nextflow.enable.dsl = 2
 
-// Input Parameters
-params.reads_dir    = "${launchDir}/data"
-params.outdir       = "${launchDir}/output"
-params.prefix       = "assembly"
-params.genome_size  = null
-
-// Filtlong Parameters
-params.min_length   = 1000
-params.min_mean_q   = 90
-
-// NECAT Parameters
-params.coverage     = 80
-
-// Medaka Parameters
-params.model        = "r1041_e82_400bps_sup_g615"
-
-// BUSCO Parameters
-params.lineage      = "fungi_odb10"
-
-// Kraken2 Parameters
-params.kraken2_db   = "/mnt/apps/users/jnprice/databases/k2_pluspf_16gb_20240112"
-
-// BLAST Parameters
-params.mito_db      = "/mnt/apps/users/jnprice/databases/organelle_blast_db"
-
-// Reference Genome
-params.ref_genome   = "${launchDir}/data/ref.fasta"
-
 // Input validation
 if (!params.reads_dir || !params.outdir || !params.genome_size || !params.prefix ) {
     error "Missing required parameters. Please provide --reads_dir, --genome_size, --prefix, and --outdir."
@@ -71,7 +43,6 @@ include { BUSCO } from './modules/busco'
 include { GFASTATS } from './modules/gfastats'
 include { KRAKEN2 } from './modules/kraken2'
 include { MITO_CHECK } from './modules/mito_check'
-include { DOTPLOT } from './modules/last'
 include { MULTIQC } from './modules/multiqc'
 
 // Main workflow
@@ -121,9 +92,6 @@ workflow {
 
     // Identify mitochondrial contigs
     MITO_CHECK(MEDAKA.out.consensus, params.mito_db)
-
-    // Dotplot
-    DOTPLOT(MEDAKA.out.consensus, params.ref_genome)
 
     // Collect all QC reports
     multiqc_files = Channel.empty()

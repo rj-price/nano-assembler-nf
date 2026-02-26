@@ -1,9 +1,6 @@
 process MEDAKA {
     container 'quay.io/biocontainers/medaka:2.0.1--py38h8774169_0'
     publishDir "${params.outdir}/${params.prefix}/final", mode: 'copy'
-    cpus = 4
-    memory = { 40.GB * task.attempt }
-    queue = 'long'
     
     input:
     tuple val(sample_id), path(fastq)

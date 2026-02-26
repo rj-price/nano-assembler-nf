@@ -1,9 +1,6 @@
 process NECAT {
     container 'community.wave.seqera.io/library/necat:0.0.1_update20200803--3374eaaf9f244948'
     publishDir "${params.outdir}/${params.prefix}/necat", mode: 'copy'
-    cpus = 4
-    memory = { 40.GB * task.attempt }
-    queue = 'long'
 
     input:
     tuple val(sample_id), path(fastq)

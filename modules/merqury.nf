@@ -1,9 +1,6 @@
 process MERQURY {
     container 'community.wave.seqera.io/library/merqury:1.3--3dd862c6d2916492'
     publishDir "${params.outdir}/${params.prefix}/merqury/reads", mode: 'copy'
-    cpus = 4
-    memory = { 16.GB * task.attempt }
-    queue = 'medium'
     
     input:
     tuple val(sample_id), path(reads)
