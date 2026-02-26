@@ -1,6 +1,6 @@
 process PORECHOP {
     container 'community.wave.seqera.io/library/porechop:0.2.4--b0e5b14915819586'
-    publishDir "${params.outdir}/${sample_id}/qc", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}/preprocessing", mode: 'copy'
 
     input:
     tuple val(sample_id), path(reads_dir)

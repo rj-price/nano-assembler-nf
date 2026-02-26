@@ -1,6 +1,6 @@
 process RACON {
     container 'community.wave.seqera.io/library/minimap2_racon:5f257adb6aaf9096'
-    publishDir "${params.outdir}/${sample_id}/polishing", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}/assembly/racon", mode: 'copy'
 
     input:
     tuple val(sample_id), path(fastq)

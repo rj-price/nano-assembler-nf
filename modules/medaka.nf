@@ -1,6 +1,6 @@
 process MEDAKA {
     container 'quay.io/biocontainers/medaka:2.0.1--py38h8774169_0'
-    publishDir "${params.outdir}/${sample_id}/polishing", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}/assembly", mode: 'copy'
     
     input:
     tuple val(sample_id), path(fastq)

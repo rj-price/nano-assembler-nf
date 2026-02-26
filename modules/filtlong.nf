@@ -1,6 +1,6 @@
 process FILTLONG {
     container 'community.wave.seqera.io/library/filtlong:0.2.1--5cb367f8dffa9e28'
-    publishDir "${params.outdir}/${sample_id}/qc", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}/preprocessing", mode: 'copy'
 
     input:
     tuple val(sample_id), path(fastq)

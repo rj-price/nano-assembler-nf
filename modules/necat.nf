@@ -1,6 +1,6 @@
 process NECAT {
     container 'community.wave.seqera.io/library/necat:0.0.1_update20200803--3374eaaf9f244948'
-    publishDir "${params.outdir}/${sample_id}/necat", mode: 'copy'
+    publishDir "${params.outdir}/${sample_id}/assembly/necat", mode: 'copy'
 
     input:
     tuple val(sample_id), path(fastq)
