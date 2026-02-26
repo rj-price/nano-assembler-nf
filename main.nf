@@ -3,8 +3,8 @@
 nextflow.enable.dsl = 2
 
 // Input validation
-if (!params.reads_dir || !params.outdir || !params.genome_size || !params.prefix ) {
-    error "Missing required parameters. Please provide --reads_dir, --genome_size, --prefix, and --outdir."
+if (!params.input || !params.outdir || !params.genome_size || !params.prefix ) {
+    error "Missing required parameters. Please provide --input (samplesheet.csv), --genome_size, --prefix, and --outdir."
 }
 
 
@@ -13,7 +13,7 @@ log.info """\
      N A N O   A S S E M B L E R     
 =====================================
            INPUT PARAMETERS
-Data Folder         : ${params.reads_dir}
+Samplesheet         : ${params.input}
 Ouput Folder        : ${params.outdir}
 Genome Size         : ${params.genome_size}
 Prefix              : ${params.prefix}
@@ -45,11 +45,24 @@ include { KRAKEN2 } from './modules/kraken2'
 include { MITO_CHECK } from './modules/mito_check'
 include { MULTIQC } from './modules/multiqc'
 
+// Function to parse samplesheet
+def parseSamplesheet(csvFile) {
+    Channel.fromPath(csvFile)
+        .splitCsv(header:true, sep:',')
+        .map { row ->
+            def sample_id = row.sample
+            def fastq = file(row.fastq)
+            if (!fastq.exists()) {
+                error "FASTQ file does not exist: ${row.fastq}"
+            }
+            return tuple(sample_id, fastq)
+        }
+}
+
 // Main workflow
 workflow {
-    // Create input channel
-    reads_ch = Channel.fromPath(params.reads_dir)
-        .map { dir -> tuple(dir.baseName, dir) }
+    // Create input channel from samplesheet
+    reads_ch = parseSamplesheet(params.input)
 
     // Porechop
     PORECHOP(reads_ch)
