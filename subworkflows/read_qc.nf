@@ -37,7 +37,7 @@ workflow READ_QC {
 
     emit:
     filtered_reads = FILTLONG.out.filtered
-    nanoplot_trimmed = NANOPLOT_TRIMMED.out.flatten()
-    nanoplot_filtered = NANOPLOT_FILTERED.out.flatten()
+    nanoplot_trimmed = NANOPLOT_TRIMMED.out.plots.flatten()
+    nanoplot_filtered = NANOPLOT_FILTERED.out.plots.flatten()
     versions
 }

@@ -8,7 +8,7 @@ process GFASTATS {
 
     output:
     path "${sample_id}_genome_stats.tsv", emit: stats
-    path "${sample_id}_contig_stats.tsv"
+    path "${sample_id}_contig_stats.tsv", emit: contig_stats
     path "versions.yml"                 , emit: versions
 
     script:

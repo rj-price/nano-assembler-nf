@@ -7,9 +7,9 @@ process TAPESTRY {
     tuple val(sample_id), path(assembly)
 
     output:
-    path "${sample_id}/${sample_id}.tapestry_report.html"
-    path "${sample_id}/contig_details.tsv"
-    path "versions.yml", emit: versions
+    path "${sample_id}/${sample_id}.tapestry_report.html", emit: report
+    path "${sample_id}/contig_details.tsv"               , emit: details
+    path "versions.yml"                                  , emit: versions
 
     script:
     """

@@ -6,7 +6,7 @@ process BUSCO {
     tuple val(sample_id), path(assembly)
 
     output:
-    path "BUSCO_${sample_id}"
+    path "BUSCO_${sample_id}"                              , emit: busco_dir
     path "BUSCO_${sample_id}/short_summary.*${sample_id}.txt", emit: summary
     path "versions.yml"                                      , emit: versions
 
