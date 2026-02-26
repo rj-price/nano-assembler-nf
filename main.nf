@@ -100,6 +100,8 @@ workflow {
         ASSEMBLY_QC.out.merqury_completeness,
         ASSEMBLY_QC.out.merqury_qv,
         ASSEMBLY_QC.out.kraken2_report,
+        ASSEMBLY_QC.out.mosdepth_global_dist,
+        ASSEMBLY_QC.out.mosdepth_summary,
         CUSTOM_DUMP_SOFTWARE_VERSIONS.out.mqc_yaml
     )
 

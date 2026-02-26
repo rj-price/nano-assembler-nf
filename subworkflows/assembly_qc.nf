@@ -8,6 +8,7 @@ include { TAPESTRY } from '../modules/tapestry'
 include { GFASTATS } from '../modules/gfastats'
 include { KRAKEN2 } from '../modules/kraken2'
 include { MITO_CHECK } from '../modules/mito_check'
+include { COVERAGE } from '../modules/coverage'
 
 workflow ASSEMBLY_QC {
     take:
@@ -19,6 +20,10 @@ workflow ASSEMBLY_QC {
 
     main:
     versions = Channel.empty()
+
+    // Coverage
+    COVERAGE(reads_ch, assembly_ch)
+    versions = versions.mix(COVERAGE.out.versions)
 
     // Merqury
     MERQURY(reads_ch, assembly_ch)
@@ -50,5 +55,7 @@ workflow ASSEMBLY_QC {
     merqury_completeness = MERQURY.out.completeness
     merqury_qv = MERQURY.out.qv
     kraken2_report = KRAKEN2.out.report
+    mosdepth_global_dist = COVERAGE.out.global_dist
+    mosdepth_summary = COVERAGE.out.summary
     versions
 }
