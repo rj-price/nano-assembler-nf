@@ -5,6 +5,7 @@
 include { NECAT } from '../modules/necat'
 include { RACON } from '../modules/racon'
 include { MEDAKA } from '../modules/medaka'
+include { RENAME_CONTIGS } from '../modules/rename_contigs'
 
 workflow ASSEMBLY {
     take:
@@ -26,7 +27,11 @@ workflow ASSEMBLY {
     MEDAKA(reads_ch, RACON.out.polished)
     versions = versions.mix(MEDAKA.out.versions)
 
+    // Rename and Sort Contigs
+    RENAME_CONTIGS(MEDAKA.out.consensus)
+    versions = versions.mix(RENAME_CONTIGS.out.versions)
+
     emit:
-    consensus = MEDAKA.out.consensus
+    consensus = RENAME_CONTIGS.out.renamed_assembly
     versions
 }
