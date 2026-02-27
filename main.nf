@@ -3,8 +3,8 @@
 nextflow.enable.dsl = 2
 
 // Input validation
-if (!params.input || !params.outdir || !params.genome_size || !params.prefix ) {
-    error "Missing required parameters. Please provide --input (samplesheet.csv), --genome_size, --prefix, and --outdir."
+if (!params.input || !params.outdir || !params.prefix ) {
+    error "Missing required parameters. Please provide --input (samplesheet.csv), --prefix, and --outdir."
 }
 
 
@@ -18,7 +18,6 @@ ${workflow.manifest.name} v${workflow.manifest.version}
            INPUT PARAMETERS
 Samplesheet         : ${params.input}
 Ouput Folder        : ${params.outdir}
-Genome Size         : ${params.genome_size}
 Prefix              : ${params.prefix}
 =================================
         ADDITIONAL PARAMETERS
@@ -54,34 +53,48 @@ def parseSamplesheet(csvFile) {
         .map { row ->
             def sample_id = row.sample
             def fastq = file(row.fastq)
+            def genome_size = row.genome_size
             if (!fastq.exists()) {
                 error "FASTQ file does not exist: ${row.fastq}"
             }
-            return tuple(sample_id, fastq)
+            if (!genome_size) {
+                error "Genome size missing for sample: ${sample_id}"
+            }
+            return tuple(sample_id, fastq, genome_size)
         }
 }
 
 // Main workflow
 workflow {
-    // Create input channel from samplesheet
-    reads_ch = parseSamplesheet(params.input)
+    // Create input channel from samplesheet: [sample_id, fastq, genome_size]
+    reads_gs_ch = parseSamplesheet(params.input)
 
     // Version tracking channel
     ch_versions = Channel.empty()
 
     // Subworkflow: Read QC
-    READ_QC(reads_ch)
+    // Extract just [sample_id, fastq] for Read QC
+    READ_QC(reads_gs_ch.map { id, fastq, gs -> tuple(id, fastq) })
     ch_versions = ch_versions.mix(READ_QC.out.versions)
 
     // Subworkflow: Assembly and Polishing
-    ASSEMBLY(READ_QC.out.filtered_reads, params.genome_size)
+    // ASSEMBLY needs [sample_id, fastq, genome_size]
+    // We join filtered reads back with their genome size
+    assembly_input_ch = READ_QC.out.filtered_reads
+        .join(reads_gs_ch.map { id, fastq, gs -> tuple(id, gs) })
+    
+    ASSEMBLY(assembly_input_ch)
     ch_versions = ch_versions.mix(ASSEMBLY.out.versions)
 
     // Subworkflow: Post-Assembly QC
+    // ASSEMBLY_QC needs [sample_id, fastq, assembly, genome_size], kraken2_db, mito_db
+    // Prepare input by joining all pieces
+    qc_input_ch = READ_QC.out.filtered_reads
+        .join(ASSEMBLY.out.consensus)
+        .join(reads_gs_ch.map { id, fastq, gs -> tuple(id, gs) })
+
     ASSEMBLY_QC(
-        READ_QC.out.filtered_reads,
-        ASSEMBLY.out.consensus,
-        params.genome_size,
+        qc_input_ch,
         params.kraken2_db,
         params.mito_db
     )

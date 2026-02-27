@@ -12,9 +12,7 @@ include { COVERAGE } from '../modules/coverage'
 
 workflow ASSEMBLY_QC {
     take:
-    reads_ch    // channel: [val(sample_id), path(fastq)]
-    assembly_ch // channel: [val(sample_id), path(assembly)]
-    genome_size // val: genome_size
+    qc_input_ch // channel: [val(sample_id), path(fastq), path(assembly), val(genome_size)]
     kraken2_db  // val: path
     mito_db     // val: path
 
@@ -22,31 +20,43 @@ workflow ASSEMBLY_QC {
     versions = Channel.empty()
 
     // Coverage
-    COVERAGE(reads_ch, assembly_ch)
+    COVERAGE(
+        qc_input_ch.map { id, fq, ass, gs -> tuple(id, fq) },
+        qc_input_ch.map { id, fq, ass, gs -> tuple(id, ass) }
+    )
     versions = versions.mix(COVERAGE.out.versions)
 
     // Merqury
-    MERQURY(reads_ch, assembly_ch)
+    MERQURY(
+        qc_input_ch.map { id, fq, ass, gs -> tuple(id, fq) },
+        qc_input_ch.map { id, fq, ass, gs -> tuple(id, ass) }
+    )
     versions = versions.mix(MERQURY.out.versions)
 
     // Tapestry
-    TAPESTRY(reads_ch, assembly_ch)
+    TAPESTRY(
+        qc_input_ch.map { id, fq, ass, gs -> tuple(id, fq) },
+        qc_input_ch.map { id, fq, ass, gs -> tuple(id, ass) }
+    )
     versions = versions.mix(TAPESTRY.out.versions)
 
     // BUSCO
-    BUSCO(assembly_ch)
+    BUSCO(qc_input_ch.map { id, fq, ass, gs -> tuple(id, ass) })
     versions = versions.mix(BUSCO.out.versions)
 
     // GFAStats
-    GFASTATS(assembly_ch, genome_size)
+    GFASTATS(
+        qc_input_ch.map { id, fq, ass, gs -> tuple(id, ass) },
+        qc_input_ch.map { id, fq, ass, gs -> gs }
+    )
     versions = versions.mix(GFASTATS.out.versions)
 
     // Kraken2 for contamination check
-    KRAKEN2(assembly_ch, kraken2_db)
+    KRAKEN2(qc_input_ch.map { id, fq, ass, gs -> tuple(id, ass) }, kraken2_db)
     versions = versions.mix(KRAKEN2.out.versions)
 
     // Identify mitochondrial contigs
-    MITO_CHECK(assembly_ch, mito_db)
+    MITO_CHECK(qc_input_ch.map { id, fq, ass, gs -> tuple(id, ass) }, mito_db)
     versions = versions.mix(MITO_CHECK.out.versions)
 
     emit:

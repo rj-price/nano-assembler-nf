@@ -9,22 +9,21 @@ include { RENAME_CONTIGS } from '../modules/rename_contigs'
 
 workflow ASSEMBLY {
     take:
-    reads_ch    // channel: [val(sample_id), path(fastq)]
-    genome_size // val: genome_size
+    reads_gs_ch    // channel: [val(sample_id), path(fastq), val(genome_size)]
 
     main:
     versions = Channel.empty()
 
     // NECAT
-    NECAT(reads_ch, genome_size)
+    NECAT(reads_gs_ch.map { id, fq, gs -> tuple(id, fq) }, reads_gs_ch.map { id, fq, gs -> gs })
     versions = versions.mix(NECAT.out.versions)
 
     // Racon
-    RACON(reads_ch, NECAT.out.assembly)
+    RACON(reads_gs_ch.map { id, fq, gs -> tuple(id, fq) }, NECAT.out.assembly)
     versions = versions.mix(RACON.out.versions)
 
     // Medaka
-    MEDAKA(reads_ch, RACON.out.polished)
+    MEDAKA(reads_gs_ch.map { id, fq, gs -> tuple(id, fq) }, RACON.out.polished)
     versions = versions.mix(MEDAKA.out.versions)
 
     // Rename and Sort Contigs
