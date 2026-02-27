@@ -1,6 +1,6 @@
 process CUSTOM_DUMP_SOFTWARE_VERSIONS {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy'
-    container 'python:3.10-slim-buster'
+    container 'quay.io/biocontainers/python:3.10.4'
 
     input:
     path 'versions_??.yml'
