@@ -1,5 +1,8 @@
 .nextflow*
+gem_pipeline
 output
 reads
 work
-slurm-*
+slurm-*work/
+.nextflow*
+gem_pipeline/
