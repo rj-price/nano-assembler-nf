@@ -1,5 +1,5 @@
 process RENAME_CONTIGS {
-    container 'community.wave.seqera.io/library/seqkit:2.8.2--406450f21469e3e3'
+    container 'quay.io/biocontainers/seqkit:2.8.2--h9ee0642_0'
     publishDir "${params.outdir}/${sample_id}/assembly", mode: 'copy'
 
     input:
