@@ -8,9 +8,7 @@ process COVERAGE {
 
     output:
     path "${sample_id}.mosdepth.global.dist.txt", emit: global_dist
-    path "${sample_id}.mosdepth.region.dist.txt", emit: region_dist
     path "${sample_id}.mosdepth.summary.txt"     , emit: summary
-    path "${sample_id}.regions.bed.gz"          , emit: regions_bed
     path "versions.yml"                         , emit: versions
 
     script:
