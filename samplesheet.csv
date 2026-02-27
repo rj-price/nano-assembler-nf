@@ -1,2 +1,2 @@
 sample,fastq,genome_size
-AJ858,/mnt/shared/scratch/jnprice/private/nano-assembler-nf/data/AJ858_1kb_Q10.fastq.gz,60000000
+AJ858,data/AJ858_1kb_Q10.fastq.gz,60000000
