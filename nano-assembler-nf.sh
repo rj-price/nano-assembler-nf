@@ -23,4 +23,6 @@ nextflow run main.nf \
     -profile slurm,singularity \
     --input "$SAMPLESHEET" \
     --genome_size "$GENOME_SIZE" \
-    --outdir "$OUT_DIR" 
+    --outdir "$OUT_DIR" \
+    -resume \
+    "$@"

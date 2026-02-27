@@ -22,7 +22,8 @@ process BUSCO {
         -o BUSCO_${sample_id} \\
         -l ${params.lineage} \\
         --download_path ./busco_downloads \\
-        --force
+        --force \\
+        --verbosity DEBUG
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
