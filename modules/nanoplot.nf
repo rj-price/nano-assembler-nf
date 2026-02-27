@@ -7,8 +7,8 @@ process NANOPLOT {
     val(stage)
 
     output:
-    path "*", emit: plots
-    path "versions.yml", emit: versions
+    path "*", exclude: "versions.yml", emit: plots
+    path "versions.yml"              , emit: versions
 
     script:
     """
