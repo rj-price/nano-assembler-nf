@@ -12,7 +12,17 @@ process BUSCO {
 
     script:
     """
-    busco -m genome -c ${task.cpus} -i ${assembly} -o BUSCO_${sample_id} -l ${params.lineage}
+    # Create a local download directory to avoid permission issues
+    mkdir -p busco_downloads
+
+    busco \\
+        -m genome \\
+        -c ${task.cpus} \\
+        -i ${assembly} \\
+        -o BUSCO_${sample_id} \\
+        -l ${params.lineage} \\
+        --download_path ./busco_downloads \\
+        --force
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
