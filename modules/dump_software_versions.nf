@@ -1,6 +1,6 @@
 process CUSTOM_DUMP_SOFTWARE_VERSIONS {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy'
-    container 'quay.io/biocontainers/python:3.10.4'
+    container 'community.wave.seqera.io/library/multiqc:1.25.1--dc1968330462e945'
 
     input:
     path 'versions_??.yml'
