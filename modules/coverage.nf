@@ -1,5 +1,5 @@
 process COVERAGE {
-    container 'community.wave.seqera.io/library/minimap2_samtools_mosdepth:70b407e329598822'
+    container 'community.wave.seqera.io/library/minimap2_mosdepth_samtools:ea43294d3c125655'
     publishDir "${params.outdir}/${sample_id}/qc/coverage", mode: 'copy'
 
     input:
