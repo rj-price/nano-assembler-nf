@@ -101,13 +101,14 @@ workflow {
     ch_versions = ch_versions.mix(ASSEMBLY_QC.out.versions)
 
     // Software versions aggregation
-    CUSTOM_DUMP_SOFTWARE_VERSIONS(ch_versions.unique().collectFile(name: 'collated_versions.yml'))
+    CUSTOM_DUMP_SOFTWARE_VERSIONS(ch_versions.unique().collect())
 
     // Collect all QC reports for MultiQC
     multiqc_files = Channel.empty()
     multiqc_files = multiqc_files.mix(
         READ_QC.out.nanoplot_trimmed,
         READ_QC.out.nanoplot_filtered,
+        READ_QC.out.jellyfish_summary,
         ASSEMBLY_QC.out.busco_summary,
         ASSEMBLY_QC.out.gfastats_stats,
         ASSEMBLY_QC.out.merqury_completeness,

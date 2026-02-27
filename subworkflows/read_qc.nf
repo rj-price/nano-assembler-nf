@@ -39,5 +39,6 @@ workflow READ_QC {
     filtered_reads = FILTLONG.out.filtered
     nanoplot_trimmed = NANOPLOT_TRIMMED.out.plots.flatten()
     nanoplot_filtered = NANOPLOT_FILTERED.out.plots.flatten()
+    jellyfish_summary = JELLYFISH.out.summary
     versions
 }

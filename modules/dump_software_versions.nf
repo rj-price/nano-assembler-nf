@@ -3,7 +3,7 @@ process CUSTOM_DUMP_SOFTWARE_VERSIONS {
     container 'community.wave.seqera.io/library/multiqc:1.25.1--dc1968330462e945'
 
     input:
-    path 'versions_??.yml'
+    path versions
 
     output:
     path "software_versions.yml"    , emit: yaml
@@ -12,7 +12,7 @@ process CUSTOM_DUMP_SOFTWARE_VERSIONS {
 
     script:
     """
-    python3 ${baseDir}/bin/dump_software_versions.py versions_??.yml
+    python3 ${baseDir}/bin/dump_software_versions.py ${versions}
 
     # Create MultiQC compatible version
     cat <<-END_YAML > software_versions_mqc.yml

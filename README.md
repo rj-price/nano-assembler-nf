@@ -87,7 +87,6 @@ results/
 │       ├── kraken2/       # Contamination reports
 |       ├── merqury/       # k-mer analysis of assembly
 │       ├── mito_check/    # Mitochondrial contig identification
-|       ├── nanoplot/      # Read metrics
 |       └── tapestry/      # Telomere predictions
 ├── multiqc/               # Aggregated MultiQC HTML report
 └── pipeline_info/         # Execution reports, traces, and software versions
@@ -95,13 +94,48 @@ results/
 
 ---
 
+## 🗄️ Database Setup
+
+The pipeline requires two external databases for full functionality (Kraken2 and Mitochondrial BLAST).
+
+### **1. Kraken2 Database**
+Used for contamination screening. You can download a pre-built database (e.g., [Standard PlusPF](https://benlangmead.github.io/aws-indexes/k2)) or build one:
+```bash
+# Example: Download and extract a 16GB pre-built database
+wget https://genome-idx.s3.amazonaws.com/kraken/k2_pluspf_16gb_20240112.tar.gz
+tar -xzvf k2_pluspf_16gb_20240112.tar.gz -C /path/to/kraken2_db/
+```
+
+### **2. Mitochondrial BLAST Database**
+Used to identify organelle contigs. You can create this from NCBI RefSeq:
+```bash
+mkdir -p /path/to/mito_db
+cd /path/to/mito_db
+# Download mitochondrial sequences (example using NCBI datasets or manual download)
+# Then build the BLAST database
+makeblastdb -in mitochondrial_sequences.fasta -dbtype nucl -out mito
+```
+
+---
+
 ## ⚙️ Configuration
 
-The pipeline's behavior can be tuned in `nextflow.config`. Key parameters include:
+The pipeline's behavior can be tuned in `nextflow.config`. **You must set your database paths before running:**
+
+```nextflow
+params {
+    kraken2_db = "/path/to/kraken2_db/"
+    mito_db    = "/path/to/mito_db/"
+}
+```
+
+Key parameters include:
 - `min_length`: Minimum read length for Filtlong (default: 1000).
 - `min_mean_q`: Minimum mean quality for Filtlong (default: 90).
 - `coverage`: Target coverage for NECAT assembly (default: 80).
 - `model`: Medaka basecalling model (default: r1041_e82_400bps_sup_g615).
+- `kraken2_db`: Path to the directory containing Kraken2 `.k2d` files.
+- `mito_db`: Path to the directory containing the BLAST database named `mito`.
 
 ---
 
