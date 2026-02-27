@@ -1,18 +1,18 @@
 # nano-assembler-nf
 
-A professional-grade Nextflow DSL2 pipeline for the de novo assembly, polishing, and comprehensive quality control of Oxford Nanopore Technologies (ONT) long-read sequencing data.
+A Nextflow pipeline for the de novo assembly, polishing, and comprehensive quality control of Oxford Nanopore Technologies (ONT) long-read sequencing data.
 
 ---
 
 ## 🚀 Overview
 
-**nano-assembler-nf** is designed for high-throughput assembly of ONT data. It handles everything from raw read preprocessing to final consensus generation and multi-metric QC. It is optimized for HPC environments using SLURM and Singularity/Apptainer.
+**nano-assembler-nf** is designed for high throughput assembly of ONT data. It handles everything from raw read preprocessing to final consensus generation and multi-metric QC. It is optimised for HPC environments using SLURM and Singularity/Apptainer.
 
 ### **Key Features**
-- **Modular DSL2 Architecture**: Clean separation of concerns with dedicated subworkflows for Read QC, Assembly, and Post-Assembly QC.
+- **Modular DSL2 Architecture**: Clean separation of processes with dedicated subworkflows for Read QC, Assembly, and Post-Assembly QC.
 - **Per-Sample Flexibility**: Specify unique genome sizes for every sample in a single run via a CSV samplesheet.
 - **Automated Polishing**: Sequential polishing using Racon (mapping-based) and Medaka (neural network consensus).
-- **Standardized Outputs**: Automated contig sorting (by length) and standardized renaming (`contig_1`, `contig_2`, etc.).
+- **Standardised Outputs**: Automated contig sorting (by length) and standardised renaming (`contig_1`, `contig_2`, etc.).
 - **Comprehensive QC**:
     *   Read statistics (NanoPlot) and K-mer analysis (Jellyfish/GenomeScope2).
     *   Assembly completeness (BUSCO, Merqury) and structural metrics (GFAStats).
@@ -69,7 +69,7 @@ sbatch nano-assembler-nf.sh samplesheet.csv ./results --lineage hypocreales_odb1
 
 ## 📂 Output Structure
 
-The pipeline organizes results into a clean, logical hierarchy:
+The pipeline organises results into a clean, logical hierarchy:
 
 ```text
 results/
@@ -82,8 +82,13 @@ results/
 │       ├── nanoplot/      # Pre and post-filter read QC
 │       ├── busco/         # Gene-set completeness
 │       ├── coverage/      # Mosdepth stats and BAM index
+|       ├── gfastats/      # Assembly and contig statistics
+|       ├── jellyfish/     # k-mer analysis of reads
 │       ├── kraken2/       # Contamination reports
-│       └── mito_check/    # Mitochondrial contig identification
+|       ├── merqury/       # k-mer analysis of assembly
+│       ├── mito_check/    # Mitochondrial contig identification
+|       ├── nanoplot/      # Read metrics
+|       └── tapestry/      # Telomere predictions
 ├── multiqc/               # Aggregated MultiQC HTML report
 └── pipeline_info/         # Execution reports, traces, and software versions
 ```
