@@ -1,7 +1,7 @@
+data
 output
 reads
 work
 slurm-*
 work/
 .nextflow*
-gem_pipeline/
