@@ -1,5 +1,6 @@
 process JELLYFISH {
     container 'community.wave.seqera.io/library/genomescope2_jellyfish_gzip:efb795d20a6993c4'
+    label 'optional_qc'
     publishDir "${params.outdir}/${sample_id}/qc/jellyfish", mode: 'copy'
     
     input:
@@ -23,5 +24,11 @@ process JELLYFISH {
         jellyfish: \$(jellyfish --version | head -n 1 | sed 's/jellyfish //')
         genomescope2: \$(genomescope2 --version | head -n 1 | sed 's/GenomeScope 2.0 //')
     END_VERSIONS
+    """
+
+    stub:
+    """
+    touch ${sample_id}_linear_plot.png ${sample_id}_log_plot.png ${sample_id}_summary.txt
+    touch versions.yml
     """
 }

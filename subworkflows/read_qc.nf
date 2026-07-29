@@ -15,22 +15,29 @@ workflow READ_QC {
     main:
     versions = Channel.empty()
 
-    // Porechop
-    PORECHOP(reads_ch)
-    versions = versions.mix(PORECHOP.out.versions)
+    // Porechop. Skippable for reads that were already chopped, or basecalled
+    // with dorado (which trims adapters itself).
+    if (params.skip_porechop) {
+        trimmed_ch = reads_ch
+    }
+    else {
+        PORECHOP(reads_ch)
+        versions = versions.mix(PORECHOP.out.versions)
+        trimmed_ch = PORECHOP.out.porechopped
+    }
 
     // NanoPlot trimmed reads
-    NANOPLOT_TRIMMED(PORECHOP.out.porechopped, 'trimmed')
+    NANOPLOT_TRIMMED(trimmed_ch, 'trimmed')
     versions = versions.mix(NANOPLOT_TRIMMED.out.versions)
 
     // Filtlong
-    FILTLONG(PORECHOP.out.porechopped)
+    FILTLONG(trimmed_ch)
     versions = versions.mix(FILTLONG.out.versions)
 
     // NanoPlot filtered reads
     NANOPLOT_FILTERED(FILTLONG.out.filtered, 'filtered')
     versions = versions.mix(NANOPLOT_FILTERED.out.versions)
-    
+
     // Jellyfish and GenomeScope2
     JELLYFISH(FILTLONG.out.filtered)
     versions = versions.mix(JELLYFISH.out.versions)

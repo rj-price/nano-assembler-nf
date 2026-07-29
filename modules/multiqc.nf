@@ -19,4 +19,11 @@ process MULTIQC {
         multiqc: \$(multiqc --version | head -n 1 | sed 's/multiqc, version //')
     END_VERSIONS
     """
+
+    stub:
+    """
+    mkdir -p multiqc_data
+    touch multiqc_report.html
+    touch versions.yml
+    """
 }

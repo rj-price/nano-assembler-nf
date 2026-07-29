@@ -3,8 +3,7 @@ process MEDAKA {
     publishDir "${params.outdir}/${sample_id}/assembly", mode: 'copy'
     
     input:
-    tuple val(sample_id), path(fastq)
-    tuple val(sample_id), path(racon_assembly)
+    tuple val(sample_id), path(fastq), path(draft_assembly)
 
     output:
     tuple val(sample_id), path("${sample_id}_medaka.fasta"), emit: consensus
@@ -13,12 +12,18 @@ process MEDAKA {
     script:
     """
     wget https://github.com/nanoporetech/medaka/raw/master/medaka/data/${params.model}_model_pt.tar.gz
-    medaka_consensus -i ${fastq} -d ${racon_assembly} -o . -t ${task.cpus} -m ${params.model}_model_pt.tar.gz
+    medaka_consensus -i ${fastq} -d ${draft_assembly} -o . -t ${task.cpus} -m ${params.model}_model_pt.tar.gz
     mv consensus.fasta ${sample_id}_medaka.fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         medaka: \$(medaka --version | head -n 1 | sed 's/medaka //')
     END_VERSIONS
+    """
+
+    stub:
+    """
+    touch ${sample_id}_medaka.fasta
+    touch versions.yml
     """
 }

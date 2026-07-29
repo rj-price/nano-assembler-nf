@@ -18,4 +18,10 @@ process PORECHOP {
         porechop: \$(porechop --version | head -n 1 | sed 's/Porechop //')
     END_VERSIONS
     """
+
+    stub:
+    """
+    touch ${sample_id}_porechopped.fastq.gz
+    touch versions.yml
+    """
 }
