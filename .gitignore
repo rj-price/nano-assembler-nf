@@ -5,3 +5,6 @@ work
 slurm-*
 work/
 .nextflow*
+CLAUDE.local.md
+results*/
+runs/

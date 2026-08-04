@@ -1,5 +1,6 @@
 process BUSCO {
     container 'community.wave.seqera.io/library/busco:5.2.2--b38cf04af6adc85b'
+    label 'optional_qc'
     publishDir "${params.outdir}/${sample_id}/qc/busco", mode: 'copy'
 
     input:
@@ -28,5 +29,12 @@ process BUSCO {
     "${task.process}":
         busco: \$(busco --version | head -n 1 | sed 's/BUSCO //')
     END_VERSIONS
+    """
+
+    stub:
+    """
+    mkdir -p BUSCO_${sample_id}
+    touch BUSCO_${sample_id}/short_summary.specific.${params.lineage}.${sample_id}.txt
+    touch versions.yml
     """
 }

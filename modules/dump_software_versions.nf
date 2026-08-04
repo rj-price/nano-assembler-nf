@@ -12,7 +12,7 @@ process CUSTOM_DUMP_SOFTWARE_VERSIONS {
 
     script:
     """
-    python3 ${baseDir}/bin/dump_software_versions.py ${versions}
+    dump_software_versions.py ${versions}
 
     # Create MultiQC compatible version
     cat <<-END_YAML > software_versions_mqc.yml
@@ -33,5 +33,10 @@ process CUSTOM_DUMP_SOFTWARE_VERSIONS {
     "${task.process}":
         python: \$(python3 --version | sed 's/Python //')
     END_VERSIONS
+    """
+
+    stub:
+    """
+    touch software_versions.yml software_versions_mqc.yml versions.yml
     """
 }

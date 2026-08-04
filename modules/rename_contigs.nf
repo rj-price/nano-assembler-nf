@@ -19,4 +19,10 @@ process RENAME_CONTIGS {
         seqkit: \$(seqkit version | cut -d ' ' -f 2)
     END_VERSIONS
     """
+
+    stub:
+    """
+    touch ${sample_id}_final.fasta
+    touch versions.yml
+    """
 }

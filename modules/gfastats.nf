@@ -1,13 +1,13 @@
 process GFASTATS {
     container 'community.wave.seqera.io/library/gfastats:1.3.7--5ddeb8c027819e41'
+    label 'optional_qc'
     publishDir "${params.outdir}/${sample_id}/qc/gfastats", mode: 'copy'
 
     input:
-    tuple val(sample_id), path(assembly)
-    val genome_size
+    tuple val(sample_id), path(assembly), val(genome_size)
 
     output:
-    path "${sample_id}_genome_stats.tsv", emit: stats
+    tuple val(sample_id), path("${sample_id}_genome_stats.tsv"), emit: stats
     path "${sample_id}_contig_stats.tsv", emit: contig_stats
     path "versions.yml"                 , emit: versions
 
@@ -21,5 +21,12 @@ process GFASTATS {
     "${task.process}":
         gfastats: \$(gfastats --version | head -n 1 | sed 's/gfastats //')
     END_VERSIONS
+    """
+
+    stub:
+    """
+    touch ${sample_id}_genome_stats.tsv
+    touch ${sample_id}_contig_stats.tsv
+    touch versions.yml
     """
 }

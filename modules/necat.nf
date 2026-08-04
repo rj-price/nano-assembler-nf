@@ -3,8 +3,7 @@ process NECAT {
     publishDir "${params.outdir}/${sample_id}/assembly/necat", mode: 'copy'
 
     input:
-    tuple val(sample_id), path(fastq)
-    val genome_size
+    tuple val(sample_id), path(fastq), val(genome_size)
 
     output:
     tuple val(sample_id), path("${sample_id}_necat.fasta"), emit: assembly
@@ -32,5 +31,11 @@ process NECAT {
     "${task.process}":
         necat: 0.0.1_update20200803
     END_VERSIONS
+    """
+
+    stub:
+    """
+    touch ${sample_id}_necat.fasta
+    touch versions.yml
     """
 }

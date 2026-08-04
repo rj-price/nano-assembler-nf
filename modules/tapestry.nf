@@ -1,10 +1,10 @@
 process TAPESTRY {
     container 'nanozoo/tapestry:1.0.0--80fd6ac'
+    label 'optional_qc'
     publishDir "${params.outdir}/${sample_id}/qc/tapestry", mode: 'copy'
     
     input:
-    tuple val(sample_id), path(reads)
-    tuple val(sample_id), path(assembly)
+    tuple val(sample_id), path(reads), path(assembly)
 
     output:
     path "${sample_id}/${sample_id}.tapestry_report.html", emit: report
@@ -16,7 +16,7 @@ process TAPESTRY {
     weave \
         --assembly ${assembly} \
         --reads ${reads} \
-        --telomere TTAGGG \
+        --telomere ${params.telomere} \
         --length 2000 \
         --output ${sample_id} \
         --cores ${task.cpus}
@@ -25,5 +25,13 @@ process TAPESTRY {
     "${task.process}":
         tapestry: 1.0.0
     END_VERSIONS
+    """
+
+    stub:
+    """
+    mkdir -p ${sample_id}
+    touch ${sample_id}/${sample_id}.tapestry_report.html
+    touch ${sample_id}/contig_details.tsv
+    touch versions.yml
     """
 }

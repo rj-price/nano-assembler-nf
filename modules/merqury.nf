@@ -1,14 +1,14 @@
 process MERQURY {
     container 'community.wave.seqera.io/library/merqury:1.3--3dd862c6d2916492'
+    label 'optional_qc'
     publishDir "${params.outdir}/${sample_id}/qc/merqury", mode: 'copy'
     
     input:
-    tuple val(sample_id), path(reads)
-    tuple val(sample_id), path(assembly)
+    tuple val(sample_id), path(reads), path(assembly)
 
     output:
-    path "${sample_id}.completeness.stats", emit: completeness
-    path "${sample_id}.qv", emit: qv
+    tuple val(sample_id), path("${sample_id}.completeness.stats"), emit: completeness
+    tuple val(sample_id), path("${sample_id}.qv"), emit: qv
     path "${sample_id}.*.qv", emit: contig_qv
     path "${sample_id}*.spectra-cn.fl.png", emit: spectra_cn_plot
     path "${sample_id}.spectra-asm.fl.png", emit: spectra_asm_plot
@@ -17,6 +17,9 @@ process MERQURY {
     path "versions.yml"                 , emit: versions
 
     script:
+    // `reads` are the sample's Illumina reads, not the ONT reads used for the
+    // assembly -- Merqury's QV is only meaningful against an independent,
+    // higher-accuracy k-mer set. May be several files (e.g. R1 and R2).
     """
     meryl k=21 threads=${task.cpus} memory=${task.memory.toGiga()} count output ${sample_id}.meryl ${reads}
 
@@ -32,5 +35,13 @@ process MERQURY {
         merqury: 1.3
         meryl: \$(meryl --version | head -n 1 | sed 's/meryl //')
     END_VERSIONS
+    """
+
+    stub:
+    """
+    touch ${sample_id}.completeness.stats ${sample_id}.qv ${sample_id}.asm.qv
+    touch ${sample_id}.spectra-cn.fl.png ${sample_id}.spectra-asm.fl.png
+    touch ${sample_id}_only.bed ${sample_id}_only.wig
+    touch versions.yml
     """
 }

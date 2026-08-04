@@ -1,14 +1,14 @@
 process COVERAGE {
     container 'community.wave.seqera.io/library/minimap2_mosdepth_samtools:ea43294d3c125655'
+    label 'optional_qc'
     publishDir "${params.outdir}/${sample_id}/qc/coverage", mode: 'copy'
 
     input:
-    tuple val(sample_id), path(fastq)
-    tuple val(sample_id), path(assembly)
+    tuple val(sample_id), path(fastq), path(assembly)
 
     output:
     path "${sample_id}.mosdepth.global.dist.txt", emit: global_dist
-    path "${sample_id}.mosdepth.summary.txt"     , emit: summary
+    path "${sample_id}.mosdepth.summary.txt"    , emit: summary
     path "versions.yml"                         , emit: versions
 
     script:
@@ -25,5 +25,12 @@ process COVERAGE {
         samtools: \$(samtools --version | head -n 1 | sed 's/samtools //')
         mosdepth: \$(mosdepth --version | sed 's/mosdepth //')
     END_VERSIONS
+    """
+
+    stub:
+    """
+    touch ${sample_id}.mosdepth.global.dist.txt
+    touch ${sample_id}.mosdepth.summary.txt
+    touch versions.yml
     """
 }
