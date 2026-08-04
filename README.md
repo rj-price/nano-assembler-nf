@@ -27,15 +27,22 @@ A Nextflow pipeline for the de novo assembly, polishing, and comprehensive quali
 ### **Requirements**
 - Nextflow (>= 24.04.0)
 - Java 11 or later
-- Docker, Singularity/Apptainer, or Conda
+- Singularity/Apptainer, or Docker (every process is containerised; there is no Conda profile)
 
 ### **Setup**
 1. Clone the repository:
    ```bash
-   git clone https://github.com/jnprice/nano-assembler-nf.git
+   git clone https://github.com/rj-price/nano-assembler-nf.git
    cd nano-assembler-nf
    ```
-2. Configure your environment in `nextflow.config` (e.g., set your Kraken2 and Mito BLAST database paths).
+2. **If you are on a different cluster, adapt the site settings first.** The `slurm` profile in
+   `nextflow.config` selects between partitions named `short`, `medium` and `long`, and
+   `nano-assembler-nf.sh` submits the head job to `long`. Those names are specific to the
+   cluster this pipeline was developed on — elsewhere, rename them to your own partitions or
+   every job will be rejected at submission. See [Configuration](#-configuration). No change is
+   needed on the development cluster.
+3. Optionally set up the Kraken2 and mitochondrial BLAST databases — see
+   [Database Setup](#️-database-setup). Both are supplied at runtime, not in the config.
 
 ---
 
@@ -202,12 +209,29 @@ command line. Key parameters include:
 - `purge_dups`: Purge haplotigs after assembly, for heterozygous diploids (default: false).
 - `model`: Medaka basecalling model (default: r1041_e82_400bps_sup_g615). Validated at startup.
 - `lineage`: BUSCO lineage (default: ascomycota_odb10).
-- `telomere`: Telomere repeat unit for Tapestry (default: TTAGGG). **Set this per species** —
-  the default is the vertebrate motif and is wrong for fungi.
+- `telomere`: Telomere repeat unit for Tapestry (default: TTAGGG). Correct as-is for most
+  filamentous fungi. **Override it for yeasts** — *C. albicans* uses
+  `ACGGATGTCTAACTTCTTGGTGT`, *S. cerevisiae* an irregular TG(1-3).
 - `kraken2_db`: Path to the directory containing Kraken2 `.k2d` files. Optional; contamination
   screening is skipped if unset.
 - `mito_db`: Path to the directory containing the BLAST database named `mito`. Optional;
   organelle identification is skipped if unset.
+
+### **Site-specific settings**
+
+These are hardcoded to the development cluster and **must** be changed to run elsewhere:
+
+| Setting | Where | Note |
+|---|---|---|
+| Partition names `short`/`medium`/`long` | `slurm` profile in `nextflow.config` | Selected on time and memory; rename to your site's partitions |
+| Head-job partition and wall time | `#SBATCH` lines in `nano-assembler-nf.sh` | Must outlast the whole pipeline |
+| Nextflow conda environment | `nano-assembler-nf.sh` | Defaults to an env named `nextflow`; override with `NEXTFLOW_ENV=<name>` |
+| `max_cpus` / `max_memory` / `max_time` | `params` in `nextflow.config` | Ceiling applied to every process via `resourceLimits` |
+
+**Compute nodes need outbound internet.** Medaka downloads its consensus model and BUSCO
+downloads its lineage on each task. On a cluster with no network on the compute nodes both will
+fail — Medaka at its `wget`, BUSCO at its lineage fetch — after assembly has already run. Pre-
+staging both and switching BUSCO to `--offline` is on the backlog in [`REVIEW.md`](REVIEW.md).
 
 See [`REVIEW.md`](REVIEW.md) for a critique of tool choices and a prioritised improvement backlog.
 

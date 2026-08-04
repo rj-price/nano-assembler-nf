@@ -72,12 +72,17 @@ ONT error k-mers inflate the low-coverage tail and bias the heterozygosity and g
 estimates. Useful as a relative signal across samples from one run, not as an absolute. Also
 flagged in the MultiQC description.
 
-### Telomere motif was wrong for every fungus
+### Telomere motif was hardcoded
 
-`--telomere TTAGGG` is the vertebrate repeat. Fungal telomere repeats vary widely — *C. albicans*
-uses a 23-bp unit (`ACGGATGTCTAACTTCTTGGTGT`), *S. cerevisiae* an irregular TG(1-3). Every
-Tapestry telomere count the pipeline has produced for a fungal genome should be treated as
-unreliable. Now `params.telomere`, set correctly in the test profile.
+`--telomere TTAGGG` was baked into the module. The motif itself is a sound default — TTAGGG is
+the canonical telomere repeat across most filamentous ascomycetes and basidiomycetes
+(*Neurospora*, *Aspergillus*, *Fusarium*, *Magnaporthe*, *Cryptococcus*), so counts from
+filamentous-fungal runs were fine.
+
+The yeasts are where it breaks: *C. albicans* uses a 23-bp unit
+(`ACGGATGTCTAACTTCTTGGTGT`), *S. cerevisiae* an irregular TG(1-3), and for those the count was
+meaningless. Now `params.telomere`, defaulting to TTAGGG and overridden in the test profile.
+Only yeast projects need to revisit past telomere numbers.
 
 ### No haplotig purging on a diploid organism
 
@@ -232,7 +237,7 @@ is comfortable at this genome size but worth watching on larger ones. RACON and 
 | Priority | Item | Why |
 |---|---|---|
 | ~~1~~ | ~~Gate Merqury on short reads~~ | **Done** — optional `illumina` column |
-| 2 | Set `params.telomere` per species in every project config | Silently wrong results, not an error |
+| 2 | Override `params.telomere` for yeast projects (default TTAGGG suits filamentous fungi) | Silently wrong results, not an error |
 | ~~3~~ | ~~`errorStrategy 'ignore'` on non-essential QC~~ | **Done** — `optional_qc` label |
 | ~~3=~~ | ~~Replace `check_max()` with `resourceLimits`~~ | **Done** |
 | 4 | BUSCO `--offline` + shared lineage path; pre-stage the Medaka model | Removes the compute-node internet dependency |
