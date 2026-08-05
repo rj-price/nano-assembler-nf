@@ -83,7 +83,7 @@ You can pass any standard Nextflow flags or pipeline parameters at the end of th
 sbatch nano-assembler-nf.sh samplesheet.csv ./results -resume
 
 # Use a specific BUSCO lineage
-sbatch nano-assembler-nf.sh samplesheet.csv ./results --lineage hypocreales_odb10
+sbatch nano-assembler-nf.sh samplesheet.csv ./results --lineage hypocreales_odb12.2
 
 # Assemble with Flye instead of NECAT, and purge haplotigs from a diploid
 sbatch nano-assembler-nf.sh samplesheet.csv ./results --assembler flye --purge_dups
@@ -107,6 +107,25 @@ submit node.
 
 Every process defines a `stub:` block, so `-stub-run` validates channel wiring, output
 declarations and MultiQC staging without running any tool.
+
+**The stub run still needs the CPUs.** `-stub-run` skips the tools but not the resource
+requests, and without the `slurm` profile Nextflow runs locally and refuses any task asking
+for more cores than the machine has — `Process requirement exceeds available CPUs -- req:
+16; avail: 2`. NECAT and MEDAKA request 16, so either grab an interactive session with at
+least that many:
+
+```bash
+srun --cpus-per-task=16 --mem=8G --pty bash
+```
+
+or cap the requests instead, which is enough for a plumbing check and works anywhere,
+including a login node:
+
+```bash
+nextflow run main.nf -profile test,singularity -stub-run --outdir ./stub --max_cpus 2
+```
+
+`max_cpus` / `max_memory` / `max_time` feed `resourceLimits`, so they clamp every process.
 
 ---
 
@@ -208,7 +227,7 @@ command line. Key parameters include:
 - `coverage`: Target coverage for NECAT assembly (default: 80).
 - `purge_dups`: Purge haplotigs after assembly, for heterozygous diploids (default: false).
 - `model`: Medaka basecalling model (default: r1041_e82_400bps_sup_g615). Validated at startup.
-- `lineage`: BUSCO lineage (default: ascomycota_odb10).
+- `lineage`: BUSCO lineage (default: ascomycota_odb12.2).
 - `telomere`: Telomere repeat unit for Tapestry (default: TTAGGG). Correct as-is for most
   filamentous fungi. **Override it for yeasts** — *C. albicans* uses
   `ACGGATGTCTAACTTCTTGGTGT`, *S. cerevisiae* an irregular TG(1-3).
@@ -225,7 +244,7 @@ These are hardcoded to the development cluster and **must** be changed to run el
 |---|---|---|
 | Partition names `short`/`medium`/`long` | `slurm` profile in `nextflow.config` | Selected on time and memory; rename to your site's partitions |
 | Head-job partition and wall time | `#SBATCH` lines in `nano-assembler-nf.sh` | Must outlast the whole pipeline |
-| Nextflow conda environment | `nano-assembler-nf.sh` | Defaults to an env named `nextflow`; override with `NEXTFLOW_ENV=<name>` |
+| Nextflow conda environment | `nano-assembler-nf.sh` | Defaults to the env active at submission, else one named `nextflow`; override with `NEXTFLOW_ENV=<name>`, or `NEXTFLOW_ENV=none` if `nextflow` is already on `PATH` |
 | `max_cpus` / `max_memory` / `max_time` | `params` in `nextflow.config` | Ceiling applied to every process via `resourceLimits` |
 
 **Compute nodes need outbound internet.** Medaka downloads its consensus model and BUSCO

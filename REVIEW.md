@@ -120,7 +120,7 @@ are genuinely resolved). Worth benchmarking on SC5314 before switching the defau
 
 | Tool | Pinned | Current | Note |
 |------|--------|---------|------|
-| BUSCO | 5.2.2 | 5.8.x | Four years of lineage and metaeuk fixes missed |
+| BUSCO | 6.1.0 | 6.1.0 | Updated this pass, 5.2.2 → 6.1.0 with odb12.2 lineages |
 | Porechop | 0.2.4 | — | Unmaintained since 2018; adapter set predates LSK114 |
 | NECAT | 2020 update | — | Unmaintained |
 | Tapestry | `nanozoo/tapestry:1.0.0` | — | Unmaintained community image |
@@ -218,7 +218,7 @@ Peak RSS across the four SC5314 runs (14.3 Mb genome), against the original requ
 | MERQURY | 16 GB | 4.6 GB | 10 GB | |
 | FLYE | 40 GB | 13.1 GB | 24 GB | |
 | PURGE_DUPS | 16 GB | 1.1 GB | 8 GB | |
-| BUSCO | 3 GB | 1.7 GB | 4 GB | was slightly under |
+| BUSCO | 3 GB | 2.9 GB | 6 GB | re-measured on 6.1.0/miniprot; was 1.7 GB under 5.2.2/metaeuk |
 | NECAT | 40 GB | 25.0 GB | 40 GB | already right |
 | KRAKEN2 | 18 GB | 13.6 GB | 18 GB | set by the database, cpus 4 -> 2 (only ~1 used) |
 | COVERAGE | default 4 GB / 1 cpu | 2.3 GB | 6 GB / 4 cpu | minimap2 was pinned to one core |

@@ -71,12 +71,33 @@ fi
 
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
 
+# Conda env holding Nextflow. There is no cluster-wide convention for its
+# name, so fall back to whatever was active when you submitted (sbatch exports
+# CONDA_DEFAULT_ENV) before guessing `nextflow`. Override explicitly with:
+#   NEXTFLOW_ENV=my_nf_env sbatch nano-assembler-nf.sh ...
+# Set NEXTFLOW_ENV=none if nextflow is already on PATH without conda.
+NEXTFLOW_ENV=${NEXTFLOW_ENV:-${CONDA_DEFAULT_ENV:-nextflow}}
+
 # sbatch exports the submitting shell's environment (--export=ALL by default).
 # If a conda env was active there, its CONDA_* vars leak in and `source
-# activate` resolves against the wrong prefix. Start from a clean slate.
+# activate` resolves against the wrong prefix. Start from a clean slate --
+# after reading CONDA_DEFAULT_ENV above, which is why the order matters.
 unset CONDA_PREFIX CONDA_DEFAULT_ENV CONDA_SHLVL CONDA_PROMPT_MODIFIER CONDA_ENVS_PATH
 
-source activate "${NEXTFLOW_ENV:-nextflow}"
+if [[ "$NEXTFLOW_ENV" != "none" && "$NEXTFLOW_ENV" != "base" ]]; then
+    if ! source activate "$NEXTFLOW_ENV"; then
+        echo "ERROR: could not activate conda env '${NEXTFLOW_ENV}'." >&2
+        echo "       Set NEXTFLOW_ENV to the env holding nextflow, or NEXTFLOW_ENV=none" >&2
+        echo "       if it is already on PATH. e.g. NEXTFLOW_ENV=nextflow_env sbatch ..." >&2
+        exit 1
+    fi
+fi
+
+if ! command -v nextflow >/dev/null 2>&1; then
+    echo "ERROR: nextflow not found on PATH after activating '${NEXTFLOW_ENV}'." >&2
+    echo "       Set NEXTFLOW_ENV to the conda env that provides it." >&2
+    exit 1
+fi
 
 nextflow run "${PIPELINE_DIR}/main.nf" \
     -profile "$PROFILES" \

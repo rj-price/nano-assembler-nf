@@ -1,5 +1,5 @@
 process BUSCO {
-    container 'community.wave.seqera.io/library/busco:5.2.2--b38cf04af6adc85b'
+    container 'quay.io/biocontainers/busco:6.1.0--pyhdfd78af_1'
     label 'optional_qc'
     publishDir { "${params.outdir}/${sample_id}/qc/busco" }, mode: 'copy'
 
