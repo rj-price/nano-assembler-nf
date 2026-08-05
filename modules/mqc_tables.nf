@@ -3,7 +3,7 @@ process MQC_TABLES {
     // this conversion those results are staged into the report and dropped.
     container 'community.wave.seqera.io/library/multiqc:1.25.1--dc1968330462e945'
     label 'optional_qc'
-    publishDir "${params.outdir}/${sample_id}/qc/multiqc_tables", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/qc/multiqc_tables" }, mode: 'copy'
 
     input:
     tuple val(sample_id), path(gfastats_stats), path(genomescope_summary)
@@ -36,7 +36,7 @@ process MQC_MERQURY {
     // supplied short reads; the tables above must still be produced for the rest.
     container 'community.wave.seqera.io/library/multiqc:1.25.1--dc1968330462e945'
     label 'optional_qc'
-    publishDir "${params.outdir}/${sample_id}/qc/multiqc_tables", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/qc/multiqc_tables" }, mode: 'copy'
 
     input:
     tuple val(sample_id), path(merqury_qv), path(merqury_completeness)

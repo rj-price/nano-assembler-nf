@@ -1,7 +1,7 @@
 process TAPESTRY {
     container 'nanozoo/tapestry:1.0.0--80fd6ac'
     label 'optional_qc'
-    publishDir "${params.outdir}/${sample_id}/qc/tapestry", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/qc/tapestry" }, mode: 'copy'
     
     input:
     tuple val(sample_id), path(reads), path(assembly)

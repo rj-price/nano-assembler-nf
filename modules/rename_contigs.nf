@@ -1,6 +1,6 @@
 process RENAME_CONTIGS {
     container 'quay.io/biocontainers/seqkit:2.8.2--h9ee0642_0'
-    publishDir "${params.outdir}/${sample_id}/assembly", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/assembly" }, mode: 'copy'
 
     input:
     tuple val(sample_id), path(assembly)

@@ -1,7 +1,7 @@
 process GFASTATS {
     container 'community.wave.seqera.io/library/gfastats:1.3.7--5ddeb8c027819e41'
     label 'optional_qc'
-    publishDir "${params.outdir}/${sample_id}/qc/gfastats", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/qc/gfastats" }, mode: 'copy'
 
     input:
     tuple val(sample_id), path(assembly), val(genome_size)

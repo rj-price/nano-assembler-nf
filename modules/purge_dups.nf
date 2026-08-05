@@ -1,7 +1,7 @@
 process PURGE_DUPS {
     // The bioconda purge_dups package depends on minimap2, so both are present.
     container 'quay.io/biocontainers/purge_dups:1.2.6--h577a1d6_3'
-    publishDir "${params.outdir}/${sample_id}/assembly/purge_dups", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/assembly/purge_dups" }, mode: 'copy'
 
     input:
     tuple val(sample_id), path(fastq), path(assembly)

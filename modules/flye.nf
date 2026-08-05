@@ -1,6 +1,6 @@
 process FLYE {
     container 'quay.io/biocontainers/flye:2.9.6--py39h475c85d_0'
-    publishDir "${params.outdir}/${sample_id}/assembly/flye", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/assembly/flye" }, mode: 'copy'
 
     input:
     tuple val(sample_id), path(fastq), val(genome_size)

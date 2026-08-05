@@ -1,7 +1,7 @@
 process NANOPLOT {
     container 'community.wave.seqera.io/library/nanoplot:1.43.0--c7226d331b0968bf'
     label 'optional_qc'
-    publishDir "${params.outdir}/${sample_id}/qc/nanoplot/${stage}", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/qc/nanoplot/${stage}" }, mode: 'copy'
 
     input:
     tuple val(sample_id), path(fastq)

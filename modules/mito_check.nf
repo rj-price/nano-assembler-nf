@@ -1,7 +1,7 @@
 process MITO_CHECK {
     container 'community.wave.seqera.io/library/blast_seqtk:9cca2195d54cc9d0'
     label 'optional_qc'
-    publishDir "${params.outdir}/${sample_id}/qc/mito_check", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/qc/mito_check" }, mode: 'copy'
 
     input:
     tuple val(sample_id), path(assembly)

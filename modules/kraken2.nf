@@ -1,7 +1,7 @@
 process KRAKEN2 {
     container 'community.wave.seqera.io/library/kraken2:2.1.3--de40043c074a5c69'
     label 'optional_qc'
-    publishDir "${params.outdir}/${sample_id}/qc/kraken2", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/qc/kraken2" }, mode: 'copy'
 
     input:
     tuple val(sample_id), path(assembly)

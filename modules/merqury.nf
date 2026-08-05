@@ -1,7 +1,7 @@
 process MERQURY {
     container 'community.wave.seqera.io/library/merqury:1.3--3dd862c6d2916492'
     label 'optional_qc'
-    publishDir "${params.outdir}/${sample_id}/qc/merqury", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/qc/merqury" }, mode: 'copy'
     
     input:
     tuple val(sample_id), path(reads), path(assembly)

@@ -1,7 +1,7 @@
 process COVERAGE {
     container 'community.wave.seqera.io/library/minimap2_mosdepth_samtools:ea43294d3c125655'
     label 'optional_qc'
-    publishDir "${params.outdir}/${sample_id}/qc/coverage", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/qc/coverage" }, mode: 'copy'
 
     input:
     tuple val(sample_id), path(fastq), path(assembly)

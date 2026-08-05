@@ -1,7 +1,7 @@
 process BUSCO {
     container 'community.wave.seqera.io/library/busco:5.2.2--b38cf04af6adc85b'
     label 'optional_qc'
-    publishDir "${params.outdir}/${sample_id}/qc/busco", mode: 'copy'
+    publishDir { "${params.outdir}/${sample_id}/qc/busco" }, mode: 'copy'
 
     input:
     tuple val(sample_id), path(assembly)
